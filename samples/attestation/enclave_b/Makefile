@@ -5,7 +5,7 @@ include ../../config.mk
 
 CFLAGS=$(shell pkg-config oeenclave-$(C_COMPILER) --cflags)
 CXXFLAGS=$(shell pkg-config oeenclave-$(CXX_COMPILER) --cflags)
-LDFLAGS=$(shell pkg-config oeenclave-$(CXX_COMPILER) --libs)
+LDFLAGS=-L/home/gdpmobile11/openenclave/samples/attestation/build/enclave_b/libsplinter.a -L/home/gdpmobile11/openenclave/samples/attestation/splinterdb/build/release/lib/ $(shell pkg-config oeenclave-$(CXX_COMPILER) --libs)
 INCDIR=$(shell pkg-config oeenclave-$(COMPILER) --variable=includedir)
 CRYPTO_LDFLAGS=$(shell pkg-config oeenclave-$(COMPILER) --variable=${OE_CRYPTO_LIB}libs)
 
@@ -37,9 +37,9 @@ build:
 	oeedger8r ../attestation.edl --trusted --trusted-dir ../common \
 		--search-path $(INCDIR) \
 		--search-path $(INCDIR)/openenclave/edl/sgx
-	$(CXX) -g -c $(CXXFLAGS) $(INCLUDES) -I../../../include -I. -I.. -std=c++11 -DOE_API_VERSION=2 ecalls.cpp ../common/attestation.cpp ../common/crypto.cpp ../common/dispatcher.cpp
+	$(CXX) -g -c $(CXXFLAGS) $(INCLUDES) -I../../../include -I. -I.. -I../splinterdb/include/ -std=c++11 -DOE_API_VERSION=2 ecalls.cpp ../common/attestation.cpp ../common/crypto.cpp ../common/dispatcher.cpp
 	$(CC) -g -c $(CFLAGS) $(CINCLUDES) -I.. -DOE_API_VERSION=2 ../common/attestation_t.c
-	$(CXX) -o enclave_b attestation.o crypto.o ecalls.o dispatcher.o attestation_t.o $(LDFLAGS) $(CRYPTO_LDFLAGS)
+	$(CXX) -o enclave_b attestation.o crypto.o ecalls.o dispatcher.o attestation_t.o splinterdb.c.o default_data_config.c.o $(LDFLAGS) $(CRYPTO_LDFLAGS)
 
 sign:
 	oesign sign -e enclave_b -c enc.conf -k private.pem

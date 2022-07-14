@@ -930,10 +930,3 @@ splinterdb_iterator_get_current(splinterdb_iterator *iter, // IN
    *key   = slice_create(kenc->length, kenc->data);
    *value = message_slice(msg);
 }
-
-
-int
-splinterdb_print_hello_world()
-{
-   return 0;
-}

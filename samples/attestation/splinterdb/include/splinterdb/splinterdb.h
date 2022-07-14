@@ -86,9 +86,6 @@ typedef struct splinterdb splinterdb;
 int
 splinterdb_create(const splinterdb_config *cfg, splinterdb **kvs);
 
-int
-splinterdb_print_hello_world();
-
 // Open an existing splinterdb from a file/device on disk
 //
 // The library will allocate and own the memory for splinterdb

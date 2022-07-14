@@ -63,21 +63,22 @@ add_library(splinter STATIC  ${CMAKE_SOURCE_DIR}/splinterdb/src/allocator.h
                           ${CMAKE_SOURCE_DIR}/splinterdb/src/platform_linux/poison.h
                           )
 
-target_include_directories(splinter PRIVATE ${CMAKE_SOURCE_DIR}
+target_include_directories(splinter PUBLIC ${CMAKE_SOURCE_DIR}
                                          ${CMAKE_BINARY_DIR}
                                          ${CMAKE_SOURCE_DIR}/splinterdb/include
-                                         ${CMAKE_SOURCE_DIR}/splinterdb/src
+                                         ${CMAKE_SOURCE_DIR}/splinterdb/src/
                                          ${CMAKE_SOURCE_DIR}/splinterdb/src/platform_linux
                                          ${CMAKE_SOURCE_DIR}/libaio/src
                                         )
 target_link_libraries(
-  splinter PRIVATE openenclave::oeenclave openenclave::oecrypto${OE_CRYPTO_LIB}
+  splinter PUBLIC openenclave::oeenclave openenclave::oecrypto${OE_CRYPTO_LIB}
   openenclave::oehostfs openenclave::oelibc openenclave::oelibcxx
   xxHash::xxhash)
 
 
 add_executable(enclave_b ecalls.cpp
-                         ${CMAKE_CURRENT_BINARY_DIR}/enclave_a_pubkey.h)
+                         ${CMAKE_CURRENT_BINARY_DIR}/enclave_a_pubkey.h
+                         )
 
 if (WIN32)
   maybe_build_using_clangw(enclave_b)
@@ -87,9 +88,10 @@ target_include_directories(enclave_b PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
                 ${CMAKE_SOURCE_DIR}/splinterdb/include
                 # ${CMAKE_SOURCE_DIR}/splinterdb/src
                 # ${CMAKE_SOURCE_DIR}/splinterdb/include/public_platform
-                ${CMAKE_SOURCE_DIR}/libaio/src/)
+                # ${CMAKE_SOURCE_DIR}/libaio/src/
+                )
 
-target_link_libraries(enclave_b common ${CMAKE_SOURCE_DIR}/splinterdb/build/release/lib/libsplinterdb.so)
+target_link_libraries(enclave_b common splinter)
 
 # Generate key B
 add_custom_command(
