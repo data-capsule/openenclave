@@ -416,7 +416,8 @@ platform_aligned_malloc(const platform_heap_id UNUSED_PARAM(heap_id),
     * (power of 2) alignment mod operations into bitwise &
     */
    const size_t padding = (alignment - (size % alignment)) % alignment;
-   return aligned_alloc(alignment, size + padding);
+   // return aligned_alloc(alignment, size + padding);
+   return malloc(size + padding);
 }
 
 /* Reallocing to size 0 must be equivalent to freeing.

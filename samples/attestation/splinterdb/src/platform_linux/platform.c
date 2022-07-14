@@ -17,6 +17,32 @@ bool platform_use_mlock   = FALSE;
 platform_log_handle *Platform_default_log_handle = NULL;
 platform_log_handle *Platform_error_log_handle   = NULL;
 
+
+struct thunk
+{
+  int (*cmp) (void const *, void const *, void *);
+  void *arg;
+};
+
+static int
+thunk_cmp (void *thunk, void const *a, void const *b)
+{
+  struct thunk *th = thunk;
+  return th->cmp (a, b, th->arg);
+}
+
+void
+qsort_r (void *base, size_t nmemb, size_t size,
+         int (*cmp) (void const *, void const *, void *),
+         void *arg)
+{
+# undef qsort_r
+  struct thunk thunk;
+  thunk.cmp = cmp;
+  thunk.arg = arg;
+  qsort_r (base, nmemb, size, &thunk, thunk_cmp);
+}
+
 // This function is run automatically at library-load time
 void __attribute__((constructor)) platform_init_log_file_handles(void)
 {
@@ -61,15 +87,6 @@ platform_buffer_create(size_t               length,
          goto error;
       }
 
-      if (platform_use_mlock) {
-         int rc = mlock(bh->addr, length);
-         if (rc != 0) {
-            platform_error_log(
-               "mlock (%lu) failed with error: %s\n", length, strerror(errno));
-            munmap(bh->addr, length);
-            goto error;
-         }
-      }
    }
 
    bh->length = length;
@@ -110,17 +127,8 @@ platform_thread_create(platform_thread       *thread,
 {
    int ret;
 
-   if (detached) {
-      pthread_attr_t attr;
-      pthread_attr_init(&attr);
-      size_t stacksize = 16UL * 1024UL;
-      pthread_attr_setstacksize(&attr, stacksize);
-      pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-      ret = pthread_create(thread, &attr, (void *(*)(void *))worker, arg);
-      pthread_attr_destroy(&attr);
-   } else {
       ret = pthread_create(thread, NULL, (void *(*)(void *))worker, arg);
-   }
+   
 
    return CONST_STATUS(ret);
 }

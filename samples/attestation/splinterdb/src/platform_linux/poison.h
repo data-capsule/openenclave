@@ -37,7 +37,7 @@
  * inside the following #ifdef and have the .c file define the macro
  * before including poison.h
  */
-#pragma GCC poison aligned_alloc
+// #pragma GCC poison aligned_alloc
 #pragma GCC poison free
 #pragma GCC poison malloc
 #pragma GCC poison calloc

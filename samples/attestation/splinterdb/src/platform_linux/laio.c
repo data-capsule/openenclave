@@ -93,7 +93,7 @@ io_handle_init(laio_handle         *io,
    platform_assert(status == 0);
    if (cfg->flags & O_CREAT) {
       io->fd = open(cfg->filename, cfg->flags, cfg->perms);
-      fallocate(io->fd, 0, 0, 128 * 1024);
+      // fallocate(io->fd, 0, 0, 128 * 1024);
    } else {
       io->fd = open(cfg->filename, cfg->flags);
    }

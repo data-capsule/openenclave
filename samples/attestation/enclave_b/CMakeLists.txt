@@ -71,8 +71,7 @@ target_include_directories(splinter PUBLIC ${CMAKE_SOURCE_DIR}
                                          ${CMAKE_SOURCE_DIR}/libaio/src
                                         )
 target_link_libraries(
-  splinter PUBLIC openenclave::oeenclave openenclave::oecrypto${OE_CRYPTO_LIB}
-  openenclave::oehostfs openenclave::oelibc openenclave::oelibcxx
+  splinter PUBLIC  openenclave::oelibc openenclave::oelibcxx
   xxHash::xxhash)
 
 
@@ -80,18 +79,34 @@ add_executable(enclave_b ecalls.cpp
                          ${CMAKE_CURRENT_BINARY_DIR}/enclave_a_pubkey.h
                          )
 
+add_library(libio STATIC ${CMAKE_SOURCE_DIR}/libaio/src/io_pgetevents.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_setup.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/raw_syscall.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/compat-0_1.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_queue_init.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_submit.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_cancel.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_queue_release.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_destroy.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_queue_run.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_getevents.c
+                      ${CMAKE_SOURCE_DIR}/libaio/src/io_queue_wait.c) 
+target_include_directories(libio PUBLIC ${CMAKE_SOURCE_DIR}
+                                         ${CMAKE_BINARY_DIR}
+                                         ${CMAKE_SOURCE_DIR}/libaio/src
+                                        )
+target_link_libraries(
+  libio PUBLIC openenclave::oelibc openenclave::oelibcxx)
+
 if (WIN32)
   maybe_build_using_clangw(enclave_b)
 endif ()
 
 target_include_directories(enclave_b PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
                 ${CMAKE_SOURCE_DIR}/splinterdb/include
-                # ${CMAKE_SOURCE_DIR}/splinterdb/src
-                # ${CMAKE_SOURCE_DIR}/splinterdb/include/public_platform
-                # ${CMAKE_SOURCE_DIR}/libaio/src/
                 )
 
-target_link_libraries(enclave_b common splinter)
+target_link_libraries(enclave_b common splinter libio)
 
 # Generate key B
 add_custom_command(
