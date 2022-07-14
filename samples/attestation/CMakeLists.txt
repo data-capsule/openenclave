@@ -20,11 +20,12 @@ project("Attestation Sample" LANGUAGES C CXX)
 
 find_package(OpenEnclave CONFIG REQUIRED)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(OE_CRYPTO_LIB
     mbedtls
     CACHE STRING "Crypto library used by enclaves.")
 
+add_subdirectory(xxHash/cmake_unofficial)
 add_subdirectory(common)
 add_subdirectory(enclave_a)
 add_subdirectory(enclave_b)

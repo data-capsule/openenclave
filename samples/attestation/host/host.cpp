@@ -69,46 +69,6 @@ int attest_one_enclave_to_the_other(
         goto exit;
     }
 
-    printf(
-        "Host: Requesting %s to generate a targeted evidence with an "
-        "encryption key\n",
-        attester_enclave_name);
-    result = get_evidence_with_public_key(
-        attester_enclave,
-        &ret,
-        format_id,
-        &format_settings,
-        &pem_key,
-        &evidence);
-    if ((result != OE_OK) || (ret != 0))
-    {
-        printf(
-            "Host: get_evidence_with_public_key failed. %s\n",
-            oe_result_str(result));
-        if (ret == 0)
-            ret = 1;
-        goto exit;
-    }
-    printf(
-        "Host: %s's  public key: \n%s\n",
-        attester_enclave_name,
-        pem_key.buffer);
-
-    printf(
-        "Host: verify_evidence_and_set_public_key in %s\n",
-        verifier_enclave_name);
-    result = verify_evidence_and_set_public_key(
-        verifier_enclave, &ret, format_id, &pem_key, &evidence);
-    if ((result != OE_OK) || (ret != 0))
-    {
-        printf(
-            "Host: verify_evidence_and_set_public_key failed. %s\n",
-            oe_result_str(result));
-        if (ret == 0)
-            ret = 1;
-        goto exit;
-    }
-
 exit:
     free(pem_key.buffer);
     free(evidence.buffer);
@@ -180,73 +140,6 @@ int main(int argc, const char* argv[])
     if (ret)
     {
         printf("Host: attestation failed with %d\n", ret);
-        goto exit;
-    }
-
-    // attest enclave B to enclave A
-    ret = attest_one_enclave_to_the_other(
-        format_id, "enclave_b", enclave_b, "enclave_a", enclave_a);
-    if (ret)
-    {
-        printf("Host: attestation failed with %d\n", ret);
-        goto exit;
-    }
-
-    // With successfully attestation on each other, we are ready to exchange
-    // data between enclaves, securely via asymmetric encryption
-    printf("Host: Requesting encrypted message from 1st enclave\n");
-    result = generate_encrypted_message(enclave_a, &ret, &encrypted_message);
-    if ((result != OE_OK) || (ret != 0))
-    {
-        printf(
-            "Host: generate_encrypted_message failed. %s",
-            oe_result_str(result));
-        if (ret == 0)
-            ret = 1;
-        goto exit;
-    }
-
-    printf("Host: Sending the encrypted message to 2nd enclave\n");
-    result = process_encrypted_message(enclave_b, &ret, &encrypted_message);
-    if ((result != OE_OK) || (ret != 0))
-    {
-        printf(
-            "Host: process_encrypted_message failed. %s",
-            oe_result_str(result));
-        if (ret == 0)
-            ret = 1;
-        goto exit;
-    }
-    printf(
-        "\n***\nHost: Now both enclaves have attested each other.\n"
-        "They can start exchanging messages between them \n"
-        "using asymmetric encryption with the public keys exchanged earlier\n"
-        "***\n\n");
-
-    // Free host memory allocated by the first enclave
-    free(encrypted_message.data);
-    encrypted_message.data = NULL;
-
-    printf("Host: Requesting encrypted message from 2nd enclave\n");
-    result = generate_encrypted_message(enclave_b, &ret, &encrypted_message);
-    if ((result != OE_OK) || (ret != 0))
-    {
-        printf(
-            "Host: generate_encrypted_message failed. %s",
-            oe_result_str(result));
-        if (ret == 0)
-            ret = 1;
-        goto exit;
-    }
-
-    printf("Sending encrypted message to 1st enclave=====\n");
-    result = process_encrypted_message(enclave_a, &ret, &encrypted_message);
-    if ((result != OE_OK) || (ret != 0))
-    {
-        printf(
-            "host process_encrypted_message failed. %s", oe_result_str(result));
-        if (ret == 0)
-            ret = 1;
         goto exit;
     }
     printf("Host: Success\n");

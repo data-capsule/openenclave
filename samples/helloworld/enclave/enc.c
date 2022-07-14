@@ -18,16 +18,23 @@ void enclave_helloworld()
     // host and calls fprintf from there. This is because
     // the fprintf function is not part of the enclave
     // as it requires support from the kernel.
-    fprintf(stdout, "Hello world from the enclave\n");
-
-    // Call back into the host
-    oe_result_t result = host_helloworld();
-    if (result != OE_OK)
-    {
-        fprintf(
-            stderr,
-            "Call to host_helloworld failed: result=%u (%s)\n",
-            result,
-            oe_result_str(result));
+    while(true){
+        fprintf(stdout, "Hello world 111111 from the enclave\n");
+        sleep(1);
     }
+}
+
+void enclave_helloworld2()
+{
+    // Print a message from the enclave. Note that this
+    // does not directly call fprintf, but calls into the
+    // host and calls fprintf from there. This is because
+    // the fprintf function is not part of the enclave
+    // as it requires support from the kernel.
+    while(true){
+    fprintf(stdout, "Hello world 22222 from the enclave\n");
+    sleep(1);
+    }
+
+
 }
