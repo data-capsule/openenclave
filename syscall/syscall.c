@@ -1160,6 +1160,11 @@ OE_WEAK OE_DEFINE_SYSCALL2(SYS_umount2)
     return oe_umount(target);
 }
 
+OE_WEAK OE_DEFINE_SYSCALL2(SYS_fchmod)
+{
+    return arg1 + arg2;
+}
+
 static long _syscall(
     long number,
     long arg1,

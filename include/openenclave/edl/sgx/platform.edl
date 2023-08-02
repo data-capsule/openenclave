@@ -23,4 +23,5 @@ enclave
 #ifdef OE_SGX_ENTROPY
     from "openenclave/edl/sgx/entropy.edl" import *;
 #endif
+    from "openenclave/edl/sgx/edmm.edl" import *;
 };

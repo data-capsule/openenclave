@@ -11,6 +11,7 @@
 #include "mman.h"
 #include "openenclave/bits/defs.h"
 #include "openenclave/bits/result.h"
+#include "stdio.h"
 #include "syscall.h"
 
 static oe_mapping_t* _mappings;
@@ -180,19 +181,30 @@ void* oe_mmap(
     size_t vector_length = 0;
     int ret = 0;
 
+    printf("[oe_mmap] in oe_enclave\n");
     OE_CHECK(_validate_mmap_parameters(addr, length, prot, flags, fd, offset));
+    printf("[oe_mmap] after _validate_mmap_parameters\n");
 
     _register_atexit_callback();
 
     // length is rounded up to nearest page size.
+    printf("[oe_mmap] before check \n");
     OE_CHECK(oe_safe_round_up_u64(length, OE_PAGE_SIZE, &length));
     OE_CHECK(oe_safe_round_up_u64(length / 8, 8, &vector_length));
+    printf("[oe_mmap] after check \n");
 
     // Allocate objects.
     vector = (uint8_t*)calloc(vector_length, 1);
     m = (oe_mapping_t*)malloc(sizeof(*m));
+    printf(
+        "[oe_mmap] after malloc m: %p, %x vector: %p, %x \n",
+        m,
+        sizeof(*m),
+        vector,
+        vector_length);
     if (!vector || !m)
     {
+        printf("[oe_mmap] out of memory \n");
         oe_errno = OE_ENOMEM;
         OE_RAISE(OE_OUT_OF_MEMORY);
     }

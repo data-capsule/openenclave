@@ -62,6 +62,8 @@ if (OE_SGX)
     sgx/backtrace.c
     sgx/calls.c
     sgx/cpuid.c
+    sgx/edmm.S
+    sgx/edmm.c
     sgx/enter.S
     sgx/entropy.c
     sgx/errno.c
@@ -97,50 +99,47 @@ if (OE_SGX)
 
   # Switch compiler from MSVC to Clang for compiling enclave libraries
   if (WIN32 AND MSVC)
-    find_program(CLANG_C_COMPILER
-                 NAMES clang
-                 PATHS "C:/Program Files/LLVM/bin"
-                 NO_DEFAULT_PATH
-                 REQUIRED)
+    find_program(
+      CLANG_C_COMPILER
+      NAMES clang
+      PATHS "C:/Program Files/LLVM/bin"
+      NO_DEFAULT_PATH REQUIRED)
     execute_process(
       COMMAND ${CLANG_C_COMPILER} --version
       OUTPUT_VARIABLE CLANG_C_COMPILER_VERSION
       OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if (CLANG_C_COMPILER_VERSION MATCHES "clang version ([0-9]+\.[0-9]+\.[0-9]+)")
+    if (CLANG_C_COMPILER_VERSION MATCHES
+        "clang version ([0-9]+\.[0-9]+\.[0-9]+)")
       set(CLANG_C_COMPILER_VERSION ${CMAKE_MATCH_1})
     else ()
       message(
-        FATAL_ERROR
-        "Could not determine Clang version from ${CLANG_C_COMPILER}"
+        FATAL_ERROR "Could not determine Clang version from ${CLANG_C_COMPILER}"
       )
     endif ()
     set(CMAKE_C_COMPILER ${CLANG_C_COMPILER})
     set(CMAKE_C_COMPILER_VERSION ${CLANG_C_COMPILER_VERSION})
     message(
       STATUS
-      "${CMAKE_C_COMPILER} (version: ${CMAKE_C_COMPILER_VERSION}) will be used to compile enclave libraries"
+        "${CMAKE_C_COMPILER} (version: ${CMAKE_C_COMPILER_VERSION}) will be used to compile enclave libraries"
     )
-    if (CMAKE_C_COMPILER_VERSION VERSION_LESS 10 
-        OR CMAKE_C_COMPILER_VERSION VERSION_GREATER 11.99)
-      message(
-        WARNING "Open Enclave officially supports Clang 11 and 10 only, "
-        "but your Clang version (${CMAKE_C_COMPILER_VERSION}) "
-        "is older or newer than that. Build problems may occur.")
+    if (CMAKE_C_COMPILER_VERSION VERSION_LESS 10 OR CMAKE_C_COMPILER_VERSION
+                                                    VERSION_GREATER 11.99)
+      message(WARNING "Open Enclave officially supports Clang 11 and 10 only, "
+                      "but your Clang version (${CMAKE_C_COMPILER_VERSION}) "
+                      "is older or newer than that. Build problems may occur.")
     endif ()
   endif ()
 
   # Adding "-Wno-frame-address" because, for clang-11 and above, usage of
-  # __builtin_frame_address() with a non-zero argument is triggering 
+  # __builtin_frame_address() with a non-zero argument is triggering
   # -Wframe-address.
-  # -Wno-frame-address is not used for clang-10 as it does not emit such 
+  # -Wno-frame-address is not used for clang-10 as it does not emit such
   # an error, and does not support the option.
   if (CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 11)
     set(C_CALLS_CFLAGS "-Wno-frame-address")
   endif ()
-  set_source_files_properties(
-    sgx/calls.c
-    PROPERTIES
-      COMPILE_OPTIONS "${C_CALLS_CFLAGS}")
+  set_source_files_properties(sgx/calls.c PROPERTIES COMPILE_OPTIONS
+                                                     "${C_CALLS_CFLAGS}")
 
   # To avoid the `unused-command-line-argument` warning, which we treat as an
   # error, we explicitly turn off the warning when compiling these assembly
@@ -241,28 +240,26 @@ list(APPEND NEEDS_STDC_NAMES ${MUSL_SRC_DIR}/prng/rand.c
 
 list(APPEND W_NO_CONVERSION ${MUSL_SRC_DIR}/prng/rand.c)
 
-set_property(
-  SOURCE ${W_NO_CONVERSION}
-  APPEND_STRING
-  PROPERTY COMPILE_FLAGS "-Wno-conversion")
+set_property(SOURCE ${W_NO_CONVERSION} APPEND_STRING PROPERTY COMPILE_FLAGS
+                                                              "-Wno-conversion")
 
-set_property(
-  SOURCE ${NEEDS_STDC_NAMES}
-  APPEND_STRING
-  PROPERTY COMPILE_FLAGS " -I${CORELIBC_INCLUDES}")
-set_property(
-  SOURCE ${NEEDS_STDC_NAMES}
-  APPEND
-  PROPERTY COMPILE_DEFINITIONS OE_NEED_STDC_NAMES)
+set_property(SOURCE ${NEEDS_STDC_NAMES} APPEND_STRING
+             PROPERTY COMPILE_FLAGS " -I${CORELIBC_INCLUDES}")
+set_property(SOURCE ${NEEDS_STDC_NAMES} APPEND PROPERTY COMPILE_DEFINITIONS
+                                                        OE_NEED_STDC_NAMES)
 
 maybe_build_using_clangw(oecore)
 
 add_enclave_dependencies(oecore core_trusted_edl)
 if (OE_SGX)
   add_enclave_dependencies(oecore platform_trusted_edl)
+  enclave_include_directories(
+    oecore PRIVATE ${PROJECT_SOURCE_DIR}/include/openenclave/corelibc)
 endif ()
 
 enclave_include_directories(oecore PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+enclave_include_directories(oecore PRIVATE
+                            ${PROJECT_SOURCE_DIR}/enclave/core/sgx/include)
 
 enclave_link_libraries(oecore PUBLIC oe_includes)
 if (OE_TRUSTZONE)
@@ -345,10 +342,8 @@ if (OE_SGX)
     ${MUSL_SRC_DIR}/string/x86_64/memmove.s
     ${MUSL_SRC_DIR}/string/x86_64/memset.s)
 
-  set_property(
-    SOURCE ${DEFAULT_VISIBILITY}
-    APPEND_STRING
-    PROPERTY COMPILE_FLAGS " -fvisibility=default")
+  set_property(SOURCE ${DEFAULT_VISIBILITY} APPEND_STRING
+               PROPERTY COMPILE_FLAGS " -fvisibility=default")
 endif ()
 
 enclave_compile_options(oecore INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-nostdinc++>)

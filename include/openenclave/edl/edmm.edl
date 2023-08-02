@@ -1,0 +1,22 @@
+// Copyright (c) Open Enclave SDK contributors.
+// Licensed under the MIT License.
+
+/*
+**==============================================================================
+**
+** sgx/edmm.edl:
+**
+**     Internal OCALLs required by the Enclave Memory Manager (emm) library for
+**     SGX2 Enclave Dynamic Memory Management (EDMM) support.
+**
+**==============================================================================
+*/
+
+enclave
+{
+    untrusted {
+        int oe_sgx_mm_alloc_ocall(uint64_t addr, size_t length, int page_type, int flags);
+        int oe_sgx_mm_modify_ocall(
+            uint64_t addr, size_t length, int flags_from, int flags_to);
+    };
+}

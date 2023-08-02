@@ -54,6 +54,14 @@ static bool (*_enclave_set_information)(
     size_t input_info_size,
     uint32_t* enclave_error);
 
+int (*_enclave_alloc)(uint64_t addr, size_t length, int flags);
+
+int (*_enclave_modify)(
+    uint64_t addr,
+    size_t length,
+    int flags_from,
+    int flags_to);
+
 /****** Dynamic loading of libsgx_enclave_common.so/.dll **************/
 
 #ifdef _WIN32
@@ -143,6 +151,8 @@ static void _load_sgx_enclave_common_impl(void)
         OE_CHECK(_lookup_function("enclave_delete", (void**)&_enclave_delete));
         OE_CHECK(_lookup_function(
             "enclave_set_information", (void**)&_enclave_set_information));
+        OE_CHECK(_lookup_function("enclave_alloc", (void**)&_enclave_alloc));
+        OE_CHECK(_lookup_function("enclave_modify", (void**)&_enclave_modify));
 
         atexit(_unload_sgx_enclave_common);
         result = OE_OK;
@@ -276,4 +286,18 @@ bool oe_sgx_enclave_set_information(
 {
     return _enclave_set_information(
         base_address, info_type, input_info, input_info_size, enclave_error);
+}
+
+int oe_sgx_enclave_alloc(uint64_t addr, size_t length, int flags)
+{
+    return _enclave_alloc(addr, length, flags);
+}
+
+int oe_sgx_enclave_modify(
+    uint64_t addr,
+    size_t length,
+    int flags_from,
+    int flags_to)
+{
+    return _enclave_modify(addr, length, flags_from, flags_to);
 }

@@ -76,6 +76,14 @@ bool oe_sgx_enclave_set_information(
     size_t input_info_size,
     uint32_t* enclave_error);
 
+int oe_sgx_enclave_alloc(uint64_t addr, size_t length, int flags);
+
+int oe_sgx_enclave_modify(
+    uint64_t addr,
+    size_t length,
+    int flags_from,
+    int flags_to);
+
 oe_result_t oe_sgx_load_sgx_enclave_common(void);
 
 #endif //  _OE_HOST_SGX_ENCLAVE_COMMON_WRAPPER_H

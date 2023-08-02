@@ -65,6 +65,8 @@ static char* get_fullpath(const char* path)
 #include "vdso.h"
 #include "xstate.h"
 
+#define OE_MMAN_PAGE_NUMBER 0x4000
+
 static volatile oe_load_extra_enclave_data_hook_t
     _oe_load_extra_enclave_data_hook;
 
@@ -395,6 +397,7 @@ static oe_result_t _calculate_enclave_size(
     size_t stack_size;
     size_t tls_size;
     size_t control_size;
+    size_t mman_size;
     const oe_enclave_size_settings_t* size_settings;
 
     size_settings = &props->header.size_settings;
@@ -440,10 +443,13 @@ static oe_result_t _calculate_enclave_size(
     control_size = (OE_SGX_TCS_CONTROL_PAGES + OE_SGX_TCS_THREAD_DATA_PAGES) *
                    OE_PAGE_SIZE;
 
+    mman_size = OE_MMAN_PAGE_NUMBER * OE_PAGE_SIZE;
+
     /* Compute end of the enclave */
     *loaded_enclave_pages_size =
         image_size + heap_size +
-        (size_settings->num_tcs * (stack_size + tls_size + control_size));
+        (size_settings->num_tcs * (stack_size + tls_size + control_size)) +
+        mman_size;
 
     if (extra_data_size)
         *loaded_enclave_pages_size += *extra_data_size;
@@ -480,24 +486,32 @@ static oe_result_t _add_data_pages(
     size_t i;
 
     /* Add the heap pages */
+    // printf("[add heap pages]\n");
+    // uint64_t heap = *vaddr;
     OE_CHECK(_add_heap_pages(
         context, enclave, vaddr, size_settings->num_heap_pages));
 
     for (i = 0; i < size_settings->num_tcs; i++)
     {
+        uint64_t start;
         /* Add guard page */
         *vaddr += OE_PAGE_SIZE;
-
+        start = *vaddr;
         /* Add the stack for this thread control structure */
         OE_CHECK(_add_stack_pages(
             context, enclave, vaddr, size_settings->num_stack_pages));
 
         /* Add guard page */
         *vaddr += OE_PAGE_SIZE;
+        start = *vaddr;
 
         /* Add the "control" pages */
         OE_CHECK(
             _add_control_pages(context, entry, tls_page_count, vaddr, enclave));
+
+        // printf("[tcs_page_control] %p - %p\n", (void *)
+        // (enclave->start_address + start), (void *) (enclave->start_address +
+        // *vaddr));
     }
 
     result = OE_OK;

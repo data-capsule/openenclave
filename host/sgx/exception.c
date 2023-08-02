@@ -57,6 +57,7 @@ uint64_t oe_host_handle_exception(oe_host_exception_context_t* context)
         oe_thread_binding_t* thread_data = oe_get_thread_binding();
         if (thread_data->flags & _OE_THREAD_HANDLING_EXCEPTION)
         {
+            printf("Not handled 1\n");
             // Return directly.
             return OE_SGX_EXCEPTION_ENCLAVE_NOT_HANDLED;
         }
@@ -109,6 +110,13 @@ uint64_t oe_host_handle_exception(oe_host_exception_context_t* context)
 
             // We continue the exception handler search as if it were a
             // non-enclave exception.
+            printf(
+                "Not handled 2: exit_address: %p, exit_code: %lu arg_out: %lu, "
+                "result: %d\n",
+                (void*)exit_address,
+                exit_code,
+                arg_out,
+                result);
             return OE_SGX_EXCEPTION_ENCLAVE_NOT_HANDLED;
         }
     }

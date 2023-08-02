@@ -162,11 +162,19 @@ static int oe_vdso_user_handler(
             {
                 /* Should always be this case */
                 if (action == OE_SGX_EXCEPTION_ENCLAVE_NOT_HANDLED)
-                    OE_TRACE_ERROR(
-                        "Unhandled in-enclave exception. To get more "
-                        "information, configure the enclave with "
-                        "CapturePFGPExceptions=1 and enable the in-enclave "
-                        "logging.");
+                    printf(
+                        "run->exception_vector: %hu, run->exception_addr: %p, "
+                        "run->user_handler: %p, run->exception_error_code: "
+                        "%x\n",
+                        run->exception_vector,
+                        (void*)run->exception_addr,
+                        (void*)run->user_handler,
+                        run->exception_error_code);
+                OE_TRACE_ERROR(
+                    "in vdso Unhandled in-enclave exception. To get more "
+                    "information, configure the enclave with "
+                    "CapturePFGPExceptions=1 and enable the in-enclave "
+                    "logging.");
                 result = -1;
             }
 

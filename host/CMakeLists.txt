@@ -490,10 +490,10 @@ macro (add_library_oehost_wrapper)
         ${PARA_LIB_NAME} sgx/linux/enter.c
         PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer")
     else ()
+      message("should not be here")
       set_source_files_properties(
         ${PARA_LIB_NAME} sgx/linux/enter.c
-        PROPERTIES COMPILE_FLAGS
-                   "-O2 -fno-omit-frame-pointer -Wno-frame-address")
+        PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer")
     endif ()
 
   endif ()
