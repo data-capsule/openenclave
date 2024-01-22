@@ -61,7 +61,7 @@ include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
 # Apply Spectre mitigation if available.
-set(SPECTRE_MITIGATION_FLAGS -mllvm -x86-speculative-load-hardening)
+# set(SPECTRE_MITIGATION_FLAGS -mllvm -x86-speculative-load-hardening)
 # Do not apply Spectre mitigation when generating code coverage because of a compiler bug.
 # More specifically, the speculative-load-hardening instrumentation
 # conflicts with gcov ones, casuing segfaults in some tests.

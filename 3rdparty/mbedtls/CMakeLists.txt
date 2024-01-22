@@ -32,7 +32,7 @@ endif ()
 set(MBEDTLS_COMPILE_OPTS
     -W -Wdeclaration-after-statement -Wwrite-strings -Wshadow
     # Disable conversion warnings inherited from OE.
-    -Wno-sign-conversion -Wno-conversion)
+    -Wno-sign-conversion -Wno-conversion -Wno-declaration-after-statement)
 
 # The gcc supported is for OP-TEE
 if (MBEDTLS_C_COMPILER MATCHES gcc)

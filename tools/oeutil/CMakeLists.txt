@@ -7,6 +7,9 @@ string(CONCAT gen_pubkey_header_command
   "oeutil_enc_public.pem"
 )
 
+set(CMAKE_C_COMPILER "gcc")
+set(CMAKE_CXX_COMPILER "g++")
+
 if (BUILD_ENCLAVES)
   # Generate a random key pair for enclave signing and output the public key to header file
   # included by the host

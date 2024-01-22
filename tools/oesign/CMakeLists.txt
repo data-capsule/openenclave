@@ -3,6 +3,10 @@
 
 include(CheckSymbolExists)
 
+# Force the use of GCC as the C and C++ compilers
+set(CMAKE_C_COMPILER "gcc")
+set(CMAKE_CXX_COMPILER "g++")
+
 list(
   APPEND
   SOURCES
@@ -16,24 +20,26 @@ if (WITH_EEID)
   list(APPEND SOURCES oedump_eeid.c)
 endif ()
 
-check_symbol_exists(getopt_long getopt.h HAVE_GETOPT_LONG)
+# check_symbol_exists(getopt_long getopt.h HAVE_GETOPT_LONG)
 
-if (NOT HAVE_GETOPT_LONG)
+# if (NOT HAVE_GETOPT_LONG)
   list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/getopt_long.c)
-endif ()
+# endif ()
+
 
 add_executable(oesign ${SOURCES})
+target_compile_options(oesign PRIVATE -Werror -g)
 
-if (NOT HAVE_GETOPT_LONG)
+# if (NOT HAVE_GETOPT_LONG)
   target_include_directories(oesign PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-endif ()
+# endif ()
 
 # Link oesign against liboehostmr, which has no dependency on
 # lib_sgx_enclave_common and libsgx_dcap_ql.
 target_link_libraries(oesign oehostmr)
 
 # assemble into proper collector dir
-set_property(TARGET oesign PROPERTY RUNTIME_OUTPUT_DIRECTORY ${OE_BINDIR})
+# set_property(TARGET oesign PROPERTY RUNTIME_OUTPUT_DIRECTORY ${OE_BINDIR})
 
 if (WIN32)
   set_target_properties(oesign PROPERTIES LINK_FLAGS "/Guard:CF")
@@ -63,9 +69,9 @@ target_compile_options(oesignlib PRIVATE -fPIC)
 
 set_target_properties(oesignlib PROPERTIES OUTPUT_NAME oesign)
 
-if (NOT HAVE_GETOPT_LONG)
+# if (NOT HAVE_GETOPT_LONG)
   target_include_directories(oesignlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-endif ()
+# endif ()
 
 target_link_libraries(oesignlib PRIVATE oe_includes)
 

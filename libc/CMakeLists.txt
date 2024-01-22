@@ -957,6 +957,7 @@ elseif (CMAKE_C_COMPILER_ID MATCHES Clang OR USE_CLANGW)
     -Wno-dangling-else
     -Wno-ignored-attributes
     -Wno-logical-op-parentheses
+    -Wno-unused-but-set-variable
     -Wno-string-plus-int
     -Wno-typedef-redefinition
     -Wno-unneeded-internal-declaration)

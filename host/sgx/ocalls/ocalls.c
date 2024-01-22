@@ -481,8 +481,9 @@ done:
     return result;
 }
 
-int oe_sgx_mm_alloc_ocall(uint64_t addr, size_t length, int flags)
+int oe_sgx_mm_alloc_ocall(uint64_t addr, size_t length, int page_type, int flags)
 {
+    (void) page_type;
     return oe_sgx_enclave_alloc(addr, length, flags);
 }
 

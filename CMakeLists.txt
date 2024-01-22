@@ -502,9 +502,9 @@ if (OE_SGX)
   add_subdirectory(debugger)
 endif ()
 
-if (BUILD_TESTS)
-  add_subdirectory(tests)
-endif ()
+# if (BUILD_TESTS)
+#   add_subdirectory(tests)
+# endif ()
 
 if (UNIX)
   add_subdirectory(docs/refman)

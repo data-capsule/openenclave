@@ -130,7 +130,10 @@ void oe_setup_ecall_context(oe_ecall_context_t* ecall_context)
     /* Record caller's stack frame if vDSO is used */
     if (oe_sgx_is_vdso_enabled)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-address"
         uint64_t* caller_frame = __builtin_frame_address(1);
+#pragma GCC diagnostic pop
         ecall_context->debug_eenter_rbp = caller_frame[0];
         ecall_context->debug_eenter_rip = caller_frame[1];
     }

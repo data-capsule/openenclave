@@ -332,7 +332,7 @@ oe_result_t oe_sgx_create_enclave(
     void* start_address = NULL;
     sgx_secs_t* secs = NULL;
     sgx_enclave_elrange_t enclave_elrange;
-    uint32_t ex_features = 0;
+    uint32_t __attribute__((unused)) ex_features = 0;
     void* ex_features_array[32] = {0};
 
     if (enclave_addr)

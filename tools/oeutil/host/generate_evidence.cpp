@@ -93,7 +93,7 @@ static const oe_uuid_t _sgx_epid_unlinkable_uuid = {
 #ifdef OEUTIL_TCB_ALLOW_ANY_ROOT_KEY
 // Override the root key used in
 // common/sgx/tcbinfo.c:_trusted_root_key_pem
-OE_EXTERNC const char* _trusted_root_key_pem =
+const char* _trusted_root_key_pem =
     "-----BEGIN PUBLIC KEY-----\n"
     "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEC6nEwMDIYZOj/iPWsCzaEKi71OiO\n"
     "SLRFhWGjbnBVJfVnkY4u3IjkDYYL0MxO4mqsyYjlBalTVYxFP2sJBK5zlA==\n"
@@ -580,7 +580,7 @@ void dump_claims(const oe_claim_t* claims, size_t claims_length)
             (const char*)claims[i].name,
             (const uint8_t*)claims[i].value,
             claims[i].value_size,
-            (const char)itr->second);
+            (char)itr->second);
     }
 }
 

@@ -117,6 +117,24 @@ add_custom_target(syscall_untrusted_edl DEPENDS syscall_u.h syscall_args.h)
 
 # OS specific but arch agnostic files.
 if (UNIX)
+  # Ignore warnings if user has openssl3
+  set_source_files_properties(
+    ${PROJECT_SOURCE_DIR}/common/cert.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/asn1.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/cert.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/crl.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/ec.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/key.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/rsa.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/sha.c
+    ${PROJECT_SOURCE_DIR}/common/crypto/openssl/hmac.c
+    crypto/openssl/init.c
+    crypto/openssl/rsa.c
+    linux/hostthread.c
+    linux/time.c
+    PROPERTIES 
+    COMPILE_FLAGS "-Wno-deprecated-declarations")
+
   list(
     APPEND
     PLATFORM_HOST_ONLY_SRC

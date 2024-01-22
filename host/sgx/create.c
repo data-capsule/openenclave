@@ -493,17 +493,14 @@ static oe_result_t _add_data_pages(
 
     for (i = 0; i < size_settings->num_tcs; i++)
     {
-        uint64_t start;
         /* Add guard page */
         *vaddr += OE_PAGE_SIZE;
-        start = *vaddr;
         /* Add the stack for this thread control structure */
         OE_CHECK(_add_stack_pages(
             context, enclave, vaddr, size_settings->num_stack_pages));
 
         /* Add guard page */
         *vaddr += OE_PAGE_SIZE;
-        start = *vaddr;
 
         /* Add the "control" pages */
         OE_CHECK(
