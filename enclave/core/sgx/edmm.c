@@ -70,8 +70,8 @@ int sgx_mm_mutex_destroy(sgx_mm_mutex* mutex)
 
 int sgx_mm_alloc_ocall(uint64_t addr, size_t length, int page_type, int flags)
 {
-    if (oe_sgx_mm_alloc_ocall((int*)addr, length, (size_t)page_type, flags) !=
-        OE_OK)
+    int ret;
+    if (oe_sgx_mm_alloc_ocall(&ret, addr, length, page_type, flags) != OE_OK)
     {
         OE_TRACE_ERROR("oe_sgx_mm_alloc_ocall failed\n");
         oe_abort();

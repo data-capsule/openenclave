@@ -82,9 +82,25 @@ if (UNIX)
   string(REPLACE "." ";" CLANG_VERSION_LIST ${CMAKE_C_COMPILER_VERSION})
   list(GET CLANG_VERSION_LIST 0 CLANG_MAJOR_VERSION)
 
+  find_program(CLANG_EXECUTABLE clang-14 clang)
+
+  execute_process(COMMAND ${CLANG_EXECUTABLE} -E -x c++ - -v INPUT_FILE /dev/null
+  OUTPUT_VARIABLE CLANG_VERBOSE_OUTPUT
+  ERROR_VARIABLE CLANG_ERROR_OUTPUT)
+
+
+  string(REGEX MATCH "(/[^ ]+/lib/clang/[^ ]+/include)" INTRINSIC_PATH "${CLANG_ERROR_OUTPUT}")
+  message(CLANG_ERROR_OUTPUT: "${CLANG_ERROR_OUTPUT}")
+
+  if(INTRINSIC_PATH)
+    message(STATUS "Clang intrinsic search paths: ${INTRINSIC_PATH}")
+  else()
+      message(FATAL_ERROR "Clang intrinsic search paths not found.")
+  endif()
+
   set(CLANG_INTRINSIC_HEADERS_SEARCH_PATH
-      "/usr/local/lib/clang/${CMAKE_C_COMPILER_VERSION}/include"
-  )
+      "${INTRINSIC_PATH}")
+
 elseif (WIN32)
   find_program(
     CLANG_COMPILER clang
